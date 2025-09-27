@@ -6,15 +6,18 @@ import dynamic from 'next/dynamic';
 import Button from '@/components/ui/Button';
 import { SpotlightInteractive } from '@/components/ui/spotlight-interactive';
 
-// Temporarily disable Spline for production stability
-const SplineScene = () => (
-  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm">
-    <div className="text-center">
-      <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-50 animate-pulse"></div>
-      <p className="text-white/60">3D Scene Loading...</p>
+// Dynamic import for Spline component to handle SSR
+const SplineScene = dynamic(() => import('@/components/ui/splite').then(mod => ({ default: mod.SplineScene })), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm">
+      <div className="text-center">
+        <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-50 animate-pulse"></div>
+        <p className="text-white/60">3D Scene Loading...</p>
+      </div>
     </div>
-  </div>
-);
+  )
+});
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -134,7 +137,10 @@ export default function Hero() {
             className="w-full h-full transition-transform duration-300 ease-out"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <SplineScene />
+            <SplineScene
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full"
+            />
           </div>
           
           <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/60 pointer-events-none"></div>

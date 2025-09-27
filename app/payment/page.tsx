@@ -47,7 +47,10 @@ export default function PaymentPage() {
     async function fetchPayment() {
       try {
         const tossPayments = await loadTossPayments(clientKey);
-        paymentRef.current = tossPayments;
+        const payment = tossPayments.payment({
+          customerKey: `customer_${Date.now()}`
+        });
+        paymentRef.current = payment;
         setIsLoading(false);
       } catch (error) {
         console.error('결제 위젯 로드 실패:', error);
