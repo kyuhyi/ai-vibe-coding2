@@ -2,16 +2,15 @@
 
 import dynamic from 'next/dynamic';
 
-const SplineSceneBasic = dynamic(
-  () => import('@/components/ui/demo').then((mod) => ({ default: mod.SplineSceneBasic })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded-lg">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400"></div>
-      </div>
-    )
-  }
+// Temporarily disable Spline for production stability
+const SplineSceneBasic = () => (
+  <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded-lg">
+    <div className="text-center">
+      <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-50 animate-pulse"></div>
+      <p className="text-white/60">3D Demo Scene</p>
+      <p className="text-gray-400 text-sm mt-2">Coming Soon</p>
+    </div>
+  </div>
 );
 
 export default function DemoPage() {

@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'AI Vibe - AI와 함께하는 코딩 교육',
   description: 'ChatGPT, Claude, GitHub Copilot 등 최신 AI 도구를 활용하여 효율적으로 프로그래밍을 배우세요.',
+  icons: {
+    icon: '/favicon.ico',
+  },
   keywords: 'AI, 코딩교육, 프로그래밍, ChatGPT, GitHub Copilot, 개발자',
   authors: [{ name: 'AI Vibe Team' }],
   creator: 'AI Vibe',
