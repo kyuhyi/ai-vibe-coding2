@@ -10,12 +10,8 @@ const nextConfig = {
         source: '/(.*)',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
             key: 'Content-Security-Policy',
-            value: "frame-src 'self' https://my.spline.design https://prod.spline.design; frame-ancestors 'self';"
+            value: "frame-src 'self' https://my.spline.design https://prod.spline.design https://vercel.live https://payment-gateway-sandbox.tosspayments.com https://js.tosspayments.com; frame-ancestors 'self';"
           }
         ],
       },
