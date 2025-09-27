@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import Button from '@/components/ui/Button';
 import { SpotlightInteractive } from '@/components/ui/spotlight-interactive';
 
-// Dynamic import for Spline component to handle SSR
+// Spline 컴포넌트를 클라이언트 사이드에서만 로드
 const SplineScene = dynamic(() => import('@/components/ui/splite').then(mod => ({ default: mod.SplineScene })), {
   ssr: false,
   loading: () => (
