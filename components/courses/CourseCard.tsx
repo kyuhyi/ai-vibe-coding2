@@ -17,7 +17,7 @@ const levelColors = {
 
 export default function CourseCard({ course }: CourseCardProps) {
   return (
-    <Card hover className="overflow-hidden">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-48 w-full">
         <Image
           src={course.image}
