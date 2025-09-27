@@ -1,4 +1,18 @@
-import { SplineSceneBasic } from "@/components/ui/demo";
+'use client'
+
+import dynamic from 'next/dynamic';
+
+const SplineSceneBasic = dynamic(
+  () => import('@/components/ui/demo').then((mod) => ({ default: mod.SplineSceneBasic })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-96 flex items-center justify-center bg-gray-800 rounded-lg">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400"></div>
+      </div>
+    )
+  }
+);
 
 export default function DemoPage() {
   return (
