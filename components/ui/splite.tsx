@@ -11,6 +11,7 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [useIframe, setUseIframe] = useState(false)
   const [SplineComponent, setSplineComponent] = useState<any>(null)
+  const [iframeError, setIframeError] = useState(false)
 
   // Spline 씬 URL을 iframe 버전으로 변환
   const getIframeUrl = (sceneUrl: string) => {
@@ -25,7 +26,17 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
   }
 
   useEffect(() => {
-    // React Spline 컴포넌트 시도 후 실패하면 iframe 사용
+    // 프로덕션 환경에서는 바로 iframe 사용 (안정성 우선)
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    if (isProduction) {
+      console.log('Production environment detected, using iframe fallback')
+      setUseIframe(true)
+      setIsLoading(false)
+      return
+    }
+
+    // 개발 환경에서만 React Spline 컴포넌트 시도
     const loadSplineComponent = async () => {
       try {
         if (typeof window === 'undefined') {
@@ -35,13 +46,13 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
         }
 
         // 짧은 지연 후 로드 시도
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise(resolve => setTimeout(resolve, 200))
 
         // React Spline 컴포넌트 로드 시도
         const splineModule = await import('@splinetool/react-spline')
 
         // 컴포넌트 임포트 확인
-        if (splineModule.default) {
+        if (splineModule.default && typeof splineModule.default === 'function') {
           setSplineComponent(splineModule.default)
           setIsLoading(false)
           return
@@ -73,6 +84,23 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
 
   // iframe으로 렌더링 (프로덕션 또는 React 컴포넌트 실패 시)
   if (useIframe) {
+    const handleIframeError = () => {
+      console.error('Iframe loading failed')
+      setIframeError(true)
+    }
+
+    if (iframeError) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm">
+          <div className="text-center">
+            <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-50"></div>
+            <p className="text-white/60">3D Scene Unavailable</p>
+            <p className="text-white/40 text-sm mt-2">Network or loading issue</p>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className={className} style={{ width: '100%', height: '100%' }}>
         <iframe
@@ -86,6 +114,8 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
           allowFullScreen
           loading="lazy"
           title="3D Scene"
+          onError={handleIframeError}
+          onLoad={() => console.log('Iframe loaded successfully')}
         />
       </div>
     )

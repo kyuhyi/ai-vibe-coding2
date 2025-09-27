@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 const navigationItems = [
   { name: '홈', href: '/' },
   { name: '코스', href: '/courses' },
-  { name: '데모', href: '/demo' },
   { name: '소개', href: '/about' },
   { name: '문의', href: '/contact' },
 ];

@@ -68,9 +68,8 @@ export default function Hero() {
             </div>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-8 animate-slide-up">
-              AI와 함께하는{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400">
-                혁신적인
+                AI와 함께하는 혁신적인
               </span>
               <br />
               코딩 교육
@@ -89,15 +88,6 @@ export default function Hero() {
                   className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-5 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm transform hover:scale-105"
                 >
                   🎯 코스 둘러보기
-                </Button>
-              </Link>
-              <Link href="/demo">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto text-white border-2 border-white/50 hover:bg-white/10 px-10 py-5 text-lg font-semibold backdrop-blur-sm transition-all duration-300 transform hover:scale-105"
-                >
-                  ▶️ 라이브 데모
                 </Button>
               </Link>
             </div>
