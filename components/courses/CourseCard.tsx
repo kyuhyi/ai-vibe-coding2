@@ -95,11 +95,18 @@ export default function CourseCard({ course }: CourseCardProps) {
                   {formatPrice(course.price)}
                 </span>
               </div>
-              <Link href={`/courses/${course.id}`}>
-                <Button variant="primary" size="sm">
-                  자세히 보기
-                </Button>
-              </Link>
+              <div className="flex gap-2">
+                <Link href={`/courses/${course.id}`}>
+                  <Button variant="outline" size="sm">
+                    자세히 보기
+                  </Button>
+                </Link>
+                <Link href={`/payment?courseId=${course.id}&amount=${course.price}&name=${encodeURIComponent(course.title)}`}>
+                  <Button variant="primary" size="sm">
+                    결제하기
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
