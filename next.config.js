@@ -3,24 +3,20 @@ const nextConfig = {
   images: {
     domains: ['images.unsplash.com'],
   },
-  experimental: {
-    esmExternals: 'loose'
+  // iframe 임베드를 위한 설정
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+        ],
+      },
+    ]
   },
-  webpack: (config, { isServer }) => {
-    // Spline 관련 설정
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-        crypto: false,
-      }
-    }
-
-    return config
-  },
-  // 트랜스파일링 설정
-  transpilePackages: ['@splinetool/react-spline', '@splinetool/runtime'],
 }
 
 module.exports = nextConfig
