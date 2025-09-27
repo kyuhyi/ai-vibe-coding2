@@ -134,10 +134,7 @@ export default function Hero() {
             className="w-full h-full transition-transform duration-300 ease-out"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <SplineScene 
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-              className="w-full h-full"
-            />
+            <SplineScene />
           </div>
           
           <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/60 pointer-events-none"></div>
