@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// 토스페이먼츠 시크릿 키 (테스트용)
-const secretKey = 'test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R';
+// 토스페이먼츠 시크릿 키 (환경 변수에서 가져오기)
+const secretKey = process.env.TOSS_PAYMENTS_SECRET_KEY;
 
 export async function POST(request: NextRequest) {
   try {

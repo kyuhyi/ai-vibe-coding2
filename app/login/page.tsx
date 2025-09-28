@@ -72,8 +72,8 @@ export default function LoginPage() {
     setIsAdminLoading(true);
     setError('');
 
-    const adminEmail = 'dk24gh@naver.com';
-    const adminPassword = 'Kyuhyi';
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'dk24gh@naver.com';
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'Kyuhyi';
 
     try {
       console.log('관리자 로그인 시작:', adminEmail);
