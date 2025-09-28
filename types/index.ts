@@ -32,3 +32,14 @@ export interface Testimonial {
   avatar: string;
   rating: number;
 }
+
+export interface CourseReview {
+  id: string;
+  courseTitle: string;
+  reviewer: string;
+  role: string;
+  content: string;
+  rating: number;
+  avatar: string;
+  date: string;
+}

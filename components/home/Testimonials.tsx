@@ -13,14 +13,14 @@ export default function Testimonials() {
             실제 수강생들의 생생한 경험담
           </p>
         </div>
-        <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
-          <div className="-mt-8 sm:-mx-4 sm:columns-1 sm:text-[0] lg:columns-3">
+        <div className="mx-auto mt-16 max-w-7xl sm:mt-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.map((testimonial, testimonialIdx) => (
               <div
                 key={testimonial.id}
-                className="pt-8 sm:inline-block sm:w-full sm:px-4"
+                className="transition-all duration-300"
               >
-                <figure className="rounded-2xl bg-white p-8 text-sm leading-6 shadow-lg ring-1 ring-gray-900/5">
+                <figure className="rounded-2xl bg-white p-8 text-sm leading-6 shadow-lg ring-1 ring-gray-900/5 h-full">
                   <blockquote className="text-gray-900">
                     <p>&ldquo;{testimonial.content}&rdquo;</p>
                   </blockquote>

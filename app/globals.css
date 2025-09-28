@@ -131,3 +131,54 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* 3D Card Hover Effects */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-gpu {
+  transform: translateZ(0);
+}
+
+.course-card-3d {
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.course-card-3d:hover {
+  transform: scale(1.05) translateY(-8px) rotateX(5deg) rotateY(5deg);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(59, 130, 246, 0.1),
+    0 0 50px rgba(59, 130, 246, 0.15);
+}
+
+.course-card-image {
+  transition: transform 0.5s ease-out;
+}
+
+.course-card-3d:hover .course-card-image {
+  transform: scale(1.1) translateZ(20px);
+}
+
+.course-card-content {
+  transition: transform 0.5s ease-out;
+}
+
+.course-card-3d:hover .course-card-content {
+  transform: translateZ(30px);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}

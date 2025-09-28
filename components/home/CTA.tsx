@@ -3,7 +3,7 @@ import Button from '@/components/ui/Button';
 
 export default function CTA() {
   return (
-    <section className="bg-primary-600">
+    <section className="bg-black">
       <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -16,7 +16,7 @@ export default function CTA() {
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link href="/courses">
-              <Button variant="secondary" size="lg" className="bg-white text-primary-600 hover:bg-gray-50">
+              <Button variant="secondary" size="lg" className="bg-white !text-black hover:bg-gray-50 hover:!text-black">
                 무료 체험하기
               </Button>
             </Link>
@@ -26,33 +26,33 @@ export default function CTA() {
           </div>
 
           {/* Stats */}
-          <div className="mx-auto mt-16 flex max-w-2xl flex-col gap-8 lg:mx-0 lg:mt-20 lg:max-w-none lg:flex-row lg:items-end">
-            <div className="flex flex-col-reverse justify-between gap-x-16 gap-y-8 rounded-2xl bg-white/5 p-8 sm:w-3/5 sm:max-w-md sm:flex-row-reverse sm:items-end lg:w-72 lg:max-w-none lg:flex-none lg:flex-col lg:items-start">
-              <p className="flex-none text-3xl font-bold tracking-tight text-white">2,500+</p>
-              <div className="sm:w-80 sm:shrink lg:w-auto lg:flex-none">
+          <div className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-8 lg:mx-0 lg:mt-20 lg:grid-cols-3">
+            <div className="flex flex-col justify-between gap-y-6 rounded-2xl bg-white/5 p-8 lg:h-64">
+              <div>
                 <p className="text-lg font-semibold tracking-tight text-white">활성 수강생</p>
-                <p className="mt-2 text-base leading-7 text-primary-100">
+                <p className="mt-2 text-sm leading-6 text-white/80">
                   매달 새로운 AI 도구를 배우고 적용하는 개발자들
                 </p>
               </div>
+              <p className="text-4xl font-bold tracking-tight text-white">2,500+</p>
             </div>
-            <div className="flex flex-col-reverse justify-between gap-x-16 gap-y-8 rounded-2xl bg-white/5 p-8 sm:flex-row-reverse sm:items-end lg:w-full lg:max-w-sm lg:flex-auto lg:flex-col lg:items-start lg:gap-y-44">
-              <p className="flex-none text-3xl font-bold tracking-tight text-white">95%</p>
-              <div className="sm:w-80 sm:shrink lg:w-auto lg:flex-none">
+            <div className="flex flex-col justify-between gap-y-6 rounded-2xl bg-white/5 p-8 lg:h-64">
+              <div>
                 <p className="text-lg font-semibold tracking-tight text-white">만족도</p>
-                <p className="mt-2 text-base leading-7 text-primary-100">
+                <p className="mt-2 text-sm leading-6 text-white/80">
                   수강생들의 평균 만족도와 추천 의향
                 </p>
               </div>
+              <p className="text-4xl font-bold tracking-tight text-white">95%</p>
             </div>
-            <div className="flex flex-col-reverse justify-between gap-x-16 gap-y-8 rounded-2xl bg-white/5 p-8 sm:w-11/12 sm:max-w-xl sm:flex-row-reverse sm:items-end lg:w-full lg:max-w-none lg:flex-auto lg:flex-col lg:items-start lg:gap-y-28">
-              <p className="flex-none text-3xl font-bold tracking-tight text-white">3배</p>
-              <div className="sm:w-80 sm:shrink lg:w-auto lg:flex-none">
+            <div className="flex flex-col justify-between gap-y-6 rounded-2xl bg-white/5 p-8 lg:h-64">
+              <div>
                 <p className="text-lg font-semibold tracking-tight text-white">생산성 향상</p>
-                <p className="mt-2 text-base leading-7 text-primary-100">
+                <p className="mt-2 text-sm leading-6 text-white/80">
                   AI 도구 활용 후 평균 개발 속도 개선
                 </p>
               </div>
+              <p className="text-4xl font-bold tracking-tight text-white">3배</p>
             </div>
           </div>
         </div>

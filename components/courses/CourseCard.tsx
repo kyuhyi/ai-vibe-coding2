@@ -17,22 +17,23 @@ const levelColors = {
 
 export default function CourseCard({ course }: CourseCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-48 w-full">
+    <Card className="overflow-hidden group cursor-pointer course-card-3d transform-gpu">
+      <div className="relative h-48 w-full overflow-hidden">
         <Image
           src={course.image}
           alt={course.title}
           fill
-          className="object-cover"
+          className="object-cover course-card-image"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div className="absolute top-4 left-4">
           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${levelColors[course.level]}`}>
             {course.level}
           </span>
         </div>
       </div>
-      <CardContent>
+      <CardContent className="course-card-content">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -95,14 +96,14 @@ export default function CourseCard({ course }: CourseCardProps) {
                   {formatPrice(course.price)}
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 transform transition-all duration-300 group-hover:translate-y-1">
                 <Link href={`/courses/${course.id}`}>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="transition-all duration-300 hover:scale-105 hover:shadow-md">
                     자세히 보기
                   </Button>
                 </Link>
                 <Link href={`/payment?courseId=${course.id}&amount=${course.price}&name=${encodeURIComponent(course.title)}`}>
-                  <Button variant="primary" size="sm">
+                  <Button variant="primary" size="sm" className="transition-all duration-300 hover:scale-105 hover:shadow-md hover:shadow-blue-500/30">
                     결제하기
                   </Button>
                 </Link>
