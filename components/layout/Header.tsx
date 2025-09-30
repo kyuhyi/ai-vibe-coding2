@@ -32,6 +32,20 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // 모바일 메뉴 열릴 때 body 스크롤 막기
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // 클린업
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
+
   return (
     <header 
       className={cn(
@@ -51,7 +65,8 @@ export default function Header() {
                 alt="Logo"
                 width={120}
                 height={48}
-                className="object-contain h-12 w-auto"
+                className="object-contain h-12"
+                style={{ width: 'auto' }}
                 priority
               />
             </div>
@@ -209,51 +224,67 @@ export default function Header() {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="lg:hidden">
-          <div 
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-            onClick={() => setIsMenuOpen(false)}
-          ></div>
-          <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-black/30 backdrop-blur-xl border-l border-white/10 px-6 py-6 sm:max-w-sm">
-            <div className="flex items-center justify-between">
-              <Link href="/" className="group -m-1.5 p-1.5">
-                <div className="relative h-10 w-auto group-hover:scale-105 transition-all duration-300">
-                  <Image
-                    src="/bsd-white.png"
-                    alt="Logo"
-                    width={100}
-                    height={40}
-                    className="object-contain h-10 w-auto"
-                    priority
-                  />
-                </div>
-              </Link>
-              <button
-                type="button"
-                className="group -m-2.5 rounded-xl p-2.5 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <span className="sr-only">메뉴 닫기</span>
-                <svg className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="mt-8 flow-root">
-              <div className="-my-6 divide-y divide-white/10">
-                <div className="space-y-3 py-6">
+          {/* Full screen overlay */}
+          <div
+            className="fixed inset-0 z-[9999] bg-black w-screen h-screen overflow-y-auto"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: '#000000',
+              width: '100vw',
+              height: '100vh',
+              zIndex: 9999
+            }}
+          >
+            <div className="flex flex-col min-h-screen w-full bg-black">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-6 border-b border-white/10 bg-black">
+                <Link href="/" className="group -m-1.5 p-1.5" onClick={() => setIsMenuOpen(false)}>
+                  <div className="relative h-10 w-auto group-hover:scale-105 transition-all duration-300">
+                    <Image
+                      src="/bsd-white.png"
+                      alt="Logo"
+                      width={100}
+                      height={40}
+                      className="object-contain h-10"
+                      style={{ width: 'auto' }}
+                      priority
+                    />
+                  </div>
+                </Link>
+                <button
+                  type="button"
+                  className="group -m-2.5 rounded-xl p-2.5 text-white hover:text-white hover:bg-white/10 transition-all duration-200 z-[10000]"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ zIndex: 10000 }}
+                >
+                  <span className="sr-only">메뉴 닫기</span>
+                  <svg className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex-1 px-6 py-6 bg-black">
+                <div className="space-y-3 mb-8">
                   {navigationItems.map((item) => (
                     <Link
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        'group -mx-3 block rounded-xl px-4 py-3 text-lg font-bold leading-7 transition-all duration-300',
+                        'group block rounded-xl px-4 py-3 text-lg font-bold leading-7 transition-all duration-300 touch-manipulation',
                         pathname === item.href
                           ? 'text-white bg-white/15 shadow-lg backdrop-blur-sm border border-white/20'
-                          : 'text-white/80 hover:text-white hover:bg-white/10'
+                          : 'text-white hover:text-white hover:bg-white/10'
                       )}
                       onClick={() => setIsMenuOpen(false)}
+                      style={{ minHeight: '48px', display: 'flex', alignItems: 'center' }}
                     >
-                      <span className="flex items-center gap-3">
+                      <span className="flex items-center gap-3 text-white">
                         {item.name}
                         {pathname === item.href && (
                           <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
@@ -262,9 +293,11 @@ export default function Header() {
                     </Link>
                   ))}
                 </div>
-                <div className="py-6">
+
+                {/* Auth Section */}
+                <div className="bg-black">
                   {loading ? (
-                    <div className="flex justify-center">
+                    <div className="flex justify-center py-8">
                       <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                     </div>
                   ) : isLoggedIn ? (
@@ -304,7 +337,8 @@ export default function Header() {
                           <Button
                             variant="ghost"
                             size="md"
-                            className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+                            className="w-full justify-start text-white hover:text-white hover:bg-white/10 transition-all duration-300 touch-manipulation"
+                            style={{ minHeight: '48px' }}
                           >
                             <User className="w-4 h-4 mr-2" />
                             마이페이지
@@ -316,7 +350,8 @@ export default function Header() {
                             <Button
                               variant="ghost"
                               size="md"
-                              className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+                              className="w-full justify-start text-white hover:text-white hover:bg-white/10 transition-all duration-300 touch-manipulation"
+                              style={{ minHeight: '48px' }}
                             >
                               <Shield className="w-4 h-4 mr-2" />
                               관리자 대시보드
@@ -328,7 +363,8 @@ export default function Header() {
                           <Button
                             variant="ghost"
                             size="md"
-                            className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+                            className="w-full justify-start text-white hover:text-white hover:bg-white/10 transition-all duration-300 touch-manipulation"
+                            style={{ minHeight: '48px' }}
                           >
                             <Settings className="w-4 h-4 mr-2" />
                             설정
@@ -342,7 +378,8 @@ export default function Header() {
                             signOut();
                             setIsMenuOpen(false);
                           }}
-                          className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300"
+                          className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300 touch-manipulation"
+                          style={{ minHeight: '48px' }}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
                           로그아웃
@@ -350,23 +387,32 @@ export default function Header() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-4">
-                      <Link href="/login">
+                    <div className="space-y-4">
+                      <div className="text-center mb-6">
+                        <h3 className="text-lg font-bold text-white mb-2">로그인이 필요합니다</h3>
+                        <p className="text-sm text-white/60">AI 코딩 교육을 시작해보세요!</p>
+                      </div>
+
+                      <Link href="/login" onClick={() => setIsMenuOpen(false)}>
                         <Button
                           variant="ghost"
-                          size="md"
-                          className="w-full text-white/80 hover:text-white hover:bg-white/10 border-white/20 backdrop-blur-sm transition-all duration-300"
+                          size="lg"
+                          className="w-full text-white hover:text-white hover:bg-white/10 border border-white/20 backdrop-blur-sm transition-all duration-300 touch-manipulation"
+                          style={{ minHeight: '56px' }}
                         >
+                          <User className="w-5 h-5 mr-2" />
                           로그인
                         </Button>
                       </Link>
-                      <Link href="/signup">
+
+                      <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
                         <Button
                           variant="primary"
-                          size="md"
-                          className="w-full bg-white hover:bg-white/90 !text-black hover:!text-black font-black shadow-lg hover:shadow-xl border-0 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
+                          size="lg"
+                          className="w-full bg-white hover:bg-white/90 !text-black hover:!text-black font-black shadow-lg hover:shadow-xl border-0 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] touch-manipulation"
+                          style={{ minHeight: '56px' }}
                         >
-                          시작하기
+                          ✨ 지금 시작하기
                         </Button>
                       </Link>
                     </div>

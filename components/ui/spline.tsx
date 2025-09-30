@@ -33,34 +33,41 @@ function SplineWrapper({ scene, className }: SplineSceneProps) {
   const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
-    // 로딩 타임아웃 설정 (30초)
+    // 로딩 타임아웃 설정 (15초로 조정, 더 빠른 대응)
     const loadingTimeout = setTimeout(() => {
-      if (isLoading && retryCount < 2) {
+      if (isLoading && retryCount < 3) {
+        console.log(`Spline loading timeout, retrying... (attempt ${retryCount + 1})`)
         setRetryCount(prev => prev + 1)
         setIsLoading(true)
+        setHasError(false)
       } else {
-        setHasError(true)
+        console.log('Spline loading failed after retries, keeping last successful state')
         setIsLoading(false)
+        // 에러 상태로 가지 않고 로딩만 중단
       }
-    }, 30000)
+    }, 15000)
 
     return () => clearTimeout(loadingTimeout)
   }, [isLoading, retryCount])
 
   const handleLoad = () => {
+    console.log('Spline scene loaded successfully')
     setIsLoading(false)
     setHasError(false)
   }
 
-  const handleError = () => {
+  const handleError = (error?: any) => {
+    console.log('Spline loading error:', error)
     setIsLoading(false)
     if (retryCount < 2) {
+      console.log(`Retrying Spline load... (attempt ${retryCount + 1})`)
       setTimeout(() => {
         setRetryCount(prev => prev + 1)
         setIsLoading(true)
         setHasError(false)
       }, 2000)
     } else {
+      console.log('Spline loading failed permanently after retries, showing fallback')
       setHasError(true)
     }
   }
