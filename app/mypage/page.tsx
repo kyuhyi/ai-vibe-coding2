@@ -169,7 +169,7 @@ export default function MyPage() {
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        가입일: {userProfile?.createdAt?.toDate?.()?.toLocaleDateString('ko-KR') || '알 수 없음'}
+                        가입일: {userProfile?.createdAt instanceof Date ? userProfile.createdAt.toLocaleDateString('ko-KR') : '알 수 없음'}
                       </span>
                     </div>
                   </div>

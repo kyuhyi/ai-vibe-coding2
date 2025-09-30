@@ -1,8 +1,10 @@
 import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { AuthProvider } from '@/contexts/AuthContext';
+import ErrorSuppressionProvider from '@/components/providers/ErrorSuppressionProvider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -51,13 +53,19 @@ export default function RootLayout({
   return (
     <html lang="ko" className={inter.className}>
       <body className="min-h-screen bg-gray-50">
-        <AuthProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </AuthProvider>
+        <Script
+          src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+          strategy="beforeInteractive"
+        />
+        <ErrorSuppressionProvider>
+          <AuthProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </AuthProvider>
+        </ErrorSuppressionProvider>
       </body>
     </html>
   );

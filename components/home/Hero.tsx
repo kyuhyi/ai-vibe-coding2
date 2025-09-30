@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button';
 import { SpotlightInteractive } from '@/components/ui/spotlight-interactive';
 
 // Spline 컴포넌트를 클라이언트 사이드에서만 로드
-const SplineScene = dynamic(() => import('@/components/ui/splite').then(mod => ({ default: mod.SplineScene })), {
+const SplineScene = dynamic(() => import('@/components/ui/spline').then(mod => ({ default: mod.SplineScene })), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm">
@@ -67,13 +67,14 @@ export default function Hero() {
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-8 animate-slide-up">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-loose mb-8 animate-slide-up">
               퍼널띵과 함께하는<br />
               실무위주 바이브코딩
             </h1>
 
-            <p className="text-lg md:text-xl text-gray-100 mb-10 leading-relaxed backdrop-blur-sm animate-fade-in">
-              ChatGPT, Claude, GitHub Copilot 등 최신 AI 도구를 활용하여 더 빠르고 효율적으로 프로그래밍을 배우세요.
+            <p className="text-lg md:text-xl text-gray-100 mb-10 leading-loose backdrop-blur-sm animate-fade-in">
+              ChatGPT, Claude, GitHub Copilot 등 최신 AI 도구를 활용하여<br />
+              더 빠르고 효율적으로 프로그래밍을 배우세요.<br />
               실무 중심의 프로젝트로 AI 시대의 개발자가 되어보세요.
             </p>
 

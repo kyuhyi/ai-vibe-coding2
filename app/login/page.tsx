@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { loginWithEmail, loginWithGoogle, signupWithEmail } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -15,12 +16,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isKakaoLoading, setIsKakaoLoading] = useState(false);
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [error, setError] = useState('');
 
   const router = useRouter();
+  const { signInWithKakao } = useAuth();
 
-  const handleEmailLogin = async (e) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -64,6 +67,22 @@ export default function LoginPage() {
       setError('Google 로그인 중 오류가 발생했습니다.');
     } finally {
       setIsGoogleLoading(false);
+    }
+  };
+
+  const handleKakaoLogin = async () => {
+    setIsKakaoLoading(true);
+    setError('');
+
+    try {
+      await signInWithKakao();
+      // 로그인 성공
+      router.push('/');
+    } catch (err) {
+      console.error('카카오 로그인 에러:', err);
+      setError('카카오 로그인 중 오류가 발생했습니다.');
+    } finally {
+      setIsKakaoLoading(false);
     }
   };
 
@@ -123,13 +142,13 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error('관리자 로그인 중 예외 발생:', err);
-      setError(`관리자 로그인 중 오류: ${err.message || '알 수 없는 오류'}`);
+      setError(`관리자 로그인 중 오류: ${err instanceof Error ? err.message : '알 수 없는 오류'}`);
     } finally {
       setIsAdminLoading(false);
     }
   };
 
-  const getKoreanErrorMessage = (error) => {
+  const getKoreanErrorMessage = (error: string) => {
     if (error.includes('auth/user-not-found') || error.includes('user-not-found')) {
       return '등록되지 않은 이메일입니다.';
     } else if (error.includes('auth/wrong-password') || error.includes('wrong-password')) {
@@ -163,11 +182,12 @@ export default function LoginPage() {
 
         {/* 로그인 폼 */}
         <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10">
-          {/* Google 로그인 버튼 */}
-          <div className="mb-6">
+          {/* 소셜 로그인 버튼들 */}
+          <div className="mb-6 space-y-3">
+            {/* Google 로그인 버튼 */}
             <Button
               onClick={handleGoogleLogin}
-              disabled={isGoogleLoading || isLoading}
+              disabled={isGoogleLoading || isLoading || isKakaoLoading}
               className="w-full bg-white hover:bg-gray-100 !text-black font-semibold py-3 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -177,6 +197,18 @@ export default function LoginPage() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
               {isGoogleLoading ? 'Google 로그인 중...' : 'Google로 로그인'}
+            </Button>
+
+            {/* 카카오 로그인 버튼 */}
+            <Button
+              onClick={handleKakaoLogin}
+              disabled={isKakaoLoading || isLoading || isGoogleLoading}
+              className="w-full !bg-[#FEE500] hover:!bg-[#FDD900] !text-black font-semibold py-3 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3C7.03 3 3 6.24 3 10.24c0 2.64 1.74 4.95 4.38 6.32l-.94 3.44c-.1.36.4.64.7.4l4.86-3.65c.67.06 1.35.09 2 .09 4.97 0 9-3.24 9-7.24C21 6.24 16.97 3 12 3z"/>
+              </svg>
+              {isKakaoLoading ? '카카오 로그인 중...' : '카카오로 로그인'}
             </Button>
           </div>
 

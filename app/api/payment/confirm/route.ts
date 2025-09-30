@@ -1,21 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { savePaymentInfo } from '../../../../lib/payment-db';
 
 // 토스페이먼츠 시크릿 키 (환경 변수에서 가져오기)
 const secretKey = process.env.TOSS_PAYMENTS_SECRET_KEY;
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('결제 승인 API 시작');
+    console.log('시크릿 키 확인:', secretKey ? '설정됨' : '설정안됨');
+
     const { paymentKey, orderId, amount } = await request.json();
+    console.log('받은 파라미터:', { paymentKey, orderId, amount });
 
     // 필수 파라미터 검증
     if (!paymentKey || !orderId || !amount) {
+      console.log('필수 파라미터 누락');
       return NextResponse.json(
         { error: '필수 파라미터가 누락되었습니다.' },
         { status: 400 }
       );
     }
 
+    // 시크릿 키 확인
+    if (!secretKey) {
+      console.log('토스페이먼츠 시크릿 키 누락');
+      return NextResponse.json(
+        { error: '토스페이먼츠 시크릿 키가 설정되지 않았습니다.' },
+        { status: 500 }
+      );
+    }
+
     // 토스페이먼츠 결제 승인 API 호출
+    console.log('토스페이먼츠 API 호출 시작');
     const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
       method: 'POST',
       headers: {
@@ -30,6 +46,7 @@ export async function POST(request: NextRequest) {
     });
 
     const result = await response.json();
+    console.log('토스페이먼츠 API 응답:', { status: response.status, result });
 
     if (!response.ok) {
       console.error('토스페이먼츠 API 오류:', result);
@@ -42,8 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 결제 승인 성공 시 데이터베이스에 저장하는 로직을 여기에 추가
-    // 예: 주문 정보 저장, 사용자에게 상품 제공 등
+    // 결제 승인 성공 시 데이터베이스에 저장
     console.log('결제 승인 성공:', {
       paymentKey: result.paymentKey,
       orderId: result.orderId,
@@ -51,6 +67,29 @@ export async function POST(request: NextRequest) {
       method: result.method,
       approvedAt: result.approvedAt,
     });
+
+    // Firebase에 결제 정보 저장
+    const saveResult = await savePaymentInfo({
+      paymentKey: result.paymentKey,
+      orderId: result.orderId,
+      amount: result.totalAmount,
+      method: result.method,
+      status: result.status,
+      approvedAt: result.approvedAt,
+      type: result.type,
+      currency: result.currency,
+      customerName: result.customerName,
+      customerEmail: result.customerEmail,
+      productName: '코딩 교육 서비스',
+      productType: 'education'
+    });
+
+    if (!saveResult.success) {
+      console.error('결제 정보 저장 실패:', saveResult.error);
+      // 저장 실패해도 결제는 성공이므로 클라이언트에는 성공 응답
+    } else {
+      console.log('결제 정보 DB 저장 완료:', saveResult.id);
+    }
 
     // 성공 응답 반환
     return NextResponse.json({

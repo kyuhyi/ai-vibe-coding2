@@ -14,12 +14,18 @@ import {
   Plus,
   Search,
   Filter,
-  Download
+  Download,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Trash2
 } from 'lucide-react';
+import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { deleteImage, getPathFromUrl } from '@/lib/storage';
 
 interface User {
   id: string;
@@ -39,6 +45,159 @@ interface Review {
   content: string;
   studentName: string;
   createdAt: any;
+  images?: string[];
+  imagePaths?: string[];
+}
+
+// 관리자용 이미지 갤러리 컴포넌트
+function AdminImageGallery({
+  images,
+  imagePaths,
+  reviewId,
+  onImageDelete
+}: {
+  images: string[];
+  imagePaths?: string[];
+  reviewId: string;
+  onImageDelete: (reviewId: string, imageIndex: number) => void;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (!images || images.length === 0) return null;
+
+  const nextImage = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleDeleteImage = async (imageIndex: number) => {
+    if (confirm('이 이미지를 삭제하시겠습니까?')) {
+      onImageDelete(reviewId, imageIndex);
+    }
+  };
+
+  return (
+    <>
+      {/* 썸네일 그리드 */}
+      <div className="mt-4 grid grid-cols-4 gap-2">
+        {images.slice(0, 4).map((image, index) => (
+          <div
+            key={index}
+            className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group"
+          >
+            <Image
+              src={image}
+              alt={`리뷰 이미지 ${index + 1}`}
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-300"
+              sizes="(max-width: 768px) 25vw, (max-width: 1200px) 15vw, 10vw"
+              onClick={() => {
+                setCurrentIndex(index);
+                setIsOpen(true);
+              }}
+            />
+            {/* 삭제 버튼 */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteImage(index);
+              }}
+              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all duration-200"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+            {index === 3 && images.length > 4 && (
+              <div
+                className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                onClick={() => {
+                  setCurrentIndex(index);
+                  setIsOpen(true);
+                }}
+              >
+                <span className="text-white font-semibold text-sm">
+                  +{images.length - 4}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* 이미지 뷰어 모달 */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <div className="relative max-w-4xl max-h-full p-4">
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* 삭제 버튼 */}
+            <button
+              onClick={() => {
+                handleDeleteImage(currentIndex);
+                setIsOpen(false);
+              }}
+              className="absolute top-4 left-4 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors z-10"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+
+            {/* 이미지 */}
+            <div className="relative">
+              <Image
+                src={images[currentIndex]}
+                alt={`리뷰 이미지 ${currentIndex + 1}`}
+                width={800}
+                height={600}
+                className="object-contain max-h-[80vh]"
+              />
+
+              {/* 이전/다음 버튼 */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
+                  >
+                    <ChevronLeft className="w-8 h-8" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
+                  >
+                    <ChevronRight className="w-8 h-8" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* 이미지 인디케이터 */}
+            {images.length > 1 && (
+              <div className="flex justify-center mt-4 gap-2">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`w-3 h-3 rounded-full ${
+                      index === currentIndex ? 'bg-white' : 'bg-gray-500'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
 
 export default function AdminDashboard() {
@@ -107,10 +266,62 @@ export default function AdminDashboard() {
 
   const deleteReview = async (reviewId: string) => {
     try {
+      // 먼저 리뷰의 이미지들을 Storage에서 삭제
+      const review = reviews.find(r => r.id === reviewId);
+      if (review?.imagePaths) {
+        for (const imagePath of review.imagePaths) {
+          try {
+            await deleteImage(imagePath);
+          } catch (error) {
+            console.error('이미지 삭제 실패:', imagePath, error);
+          }
+        }
+      }
+
+      // Firestore에서 리뷰 문서 삭제
       await deleteDoc(doc(db, 'reviews', reviewId));
       setReviews(prev => prev.filter(review => review.id !== reviewId));
     } catch (error) {
       console.error('리뷰 삭제 에러:', error);
+    }
+  };
+
+  // 개별 이미지 삭제 함수
+  const deleteReviewImage = async (reviewId: string, imageIndex: number) => {
+    try {
+      const review = reviews.find(r => r.id === reviewId);
+      if (!review || !review.images || !review.imagePaths) return;
+
+      const imageToDelete = review.images[imageIndex];
+      const pathToDelete = review.imagePaths[imageIndex];
+
+      // Storage에서 이미지 삭제
+      if (pathToDelete) {
+        await deleteImage(pathToDelete);
+      }
+
+      // 배열에서 해당 이미지 제거
+      const updatedImages = review.images.filter((_, index) => index !== imageIndex);
+      const updatedPaths = review.imagePaths.filter((_, index) => index !== imageIndex);
+
+      // Firestore 업데이트
+      const reviewDocRef = doc(db, 'reviews', reviewId);
+      await updateDoc(reviewDocRef, {
+        images: updatedImages,
+        imagePaths: updatedPaths
+      });
+
+      // 로컬 상태 업데이트
+      setReviews(prev => prev.map(r =>
+        r.id === reviewId
+          ? { ...r, images: updatedImages, imagePaths: updatedPaths }
+          : r
+      ));
+
+      alert('이미지가 삭제되었습니다.');
+    } catch (error) {
+      console.error('이미지 삭제 에러:', error);
+      alert('이미지 삭제에 실패했습니다.');
     }
   };
 
@@ -392,6 +603,16 @@ export default function AdminDashboard() {
                   </div>
 
                   <p className="text-gray-200 mb-4">{review.content}</p>
+
+                  {/* 첨부 이미지 표시 */}
+                  {review.images && review.images.length > 0 && (
+                    <AdminImageGallery
+                      images={review.images}
+                      imagePaths={review.imagePaths}
+                      reviewId={review.id}
+                      onImageDelete={deleteReviewImage}
+                    />
+                  )}
 
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium text-white">{review.studentName}</span>

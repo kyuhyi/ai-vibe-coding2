@@ -42,4 +42,6 @@ export interface CourseReview {
   rating: number;
   avatar: string;
   date: string;
+  images?: string[]; // 첨부 이미지 URLs
+  imagePaths?: string[]; // Storage 경로들 (삭제용)
 }

@@ -22,7 +22,7 @@ export default function SignupPage() {
 
   const router = useRouter();
 
-  const handleEmailSignup = async (e) => {
+  const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -79,7 +79,7 @@ export default function SignupPage() {
     }
   };
 
-  const getKoreanErrorMessage = (error) => {
+  const getKoreanErrorMessage = (error: string) => {
     if (error.includes('email-already-in-use')) {
       return '이미 사용 중인 이메일입니다.';
     } else if (error.includes('weak-password')) {

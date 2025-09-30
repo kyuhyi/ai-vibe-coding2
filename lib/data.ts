@@ -52,6 +52,19 @@ export const courses: Course[] = [
     instructor: '최모바일',
     rating: 4.6,
     students: 723
+  },
+  {
+    id: '5',
+    title: '🎯 AI 기초 체험 강의 (테스트)',
+    description: '토스페이먼츠 결제 시스템을 테스트해보고 AI 도구의 기본 사용법을 간단히 체험해보세요!',
+    level: 'Beginner',
+    duration: '1시간',
+    price: 100,
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
+    tags: ['AI', 'ChatGPT', '테스트', '체험'],
+    instructor: '퍼널띵',
+    rating: 5.0,
+    students: 999
   }
 ];
 

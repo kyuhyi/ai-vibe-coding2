@@ -1,21 +1,159 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Star, MessageSquare, Plus } from 'lucide-react';
+import { Star, MessageSquare, Plus, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import ReviewModal from './ReviewModal';
-import { courseReviews } from '@/lib/data';
+import { getDocuments } from '@/lib/firestore';
 import { CourseReview } from '@/types';
+import Image from 'next/image';
+
+// 이미지 갤러리 컴포넌트
+function ImageGallery({ images }: { images: string[] }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (!images || images.length === 0) return null;
+
+  const nextImage = () => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  return (
+    <>
+      {/* 썸네일 그리드 */}
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {images.slice(0, 3).map((image, index) => (
+          <div
+            key={index}
+            className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group"
+            onClick={() => {
+              setCurrentIndex(index);
+              setIsOpen(true);
+            }}
+          >
+            <Image
+              src={image}
+              alt={`리뷰 이미지 ${index + 1}`}
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-300"
+              sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 15vw"
+            />
+            {index === 2 && images.length > 3 && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <span className="text-white font-semibold">
+                  +{images.length - 3}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* 이미지 뷰어 모달 */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <div className="relative max-w-4xl max-h-full p-4">
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* 이미지 */}
+            <div className="relative">
+              <Image
+                src={images[currentIndex]}
+                alt={`리뷰 이미지 ${currentIndex + 1}`}
+                width={800}
+                height={600}
+                className="object-contain max-h-[80vh]"
+              />
+
+              {/* 이전/다음 버튼 */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
+                  >
+                    <ChevronLeft className="w-8 h-8" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
+                  >
+                    <ChevronRight className="w-8 h-8" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* 이미지 인디케이터 */}
+            {images.length > 1 && (
+              <div className="flex justify-center mt-4 gap-2">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`w-3 h-3 rounded-full ${
+                      index === currentIndex ? 'bg-white' : 'bg-gray-500'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function CourseReviews() {
   const [reviews, setReviews] = useState<CourseReview[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // 리뷰 목록 새로고침 함수
+  const refreshReviews = async () => {
+    try {
+      const reviewsData = await getDocuments('reviews');
+      // 최신순으로 정렬
+      const sortedReviews = reviewsData.sort((a: any, b: any) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      // CourseReview 타입에 맞게 변환
+      const formattedReviews = sortedReviews.map((review: any) => ({
+        id: review.id,
+        courseTitle: review.courseName || '강의명 없음',
+        reviewer: review.studentName || '익명',
+        role: '수강생',
+        content: review.content,
+        rating: review.rating,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(review.studentName || '익명')}&background=6366f1&color=fff`,
+        date: review.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        images: review.images || [],
+        imagePaths: review.imagePaths || []
+      }));
+
+      setReviews(formattedReviews);
+    } catch (error) {
+      console.error('리뷰 로딩 실패:', error);
+    }
+  };
+
   useEffect(() => {
-    // 샘플 데이터 로드
-    setReviews(courseReviews);
-    setLoading(false);
+    refreshReviews().finally(() => setLoading(false));
   }, []);
 
   const renderStars = (rating: number) => {
@@ -105,6 +243,11 @@ export default function CourseReviews() {
                     {review.content}
                   </p>
 
+                  {/* 첨부 이미지 표시 */}
+                  {review.images && review.images.length > 0 && (
+                    <ImageGallery images={review.images} />
+                  )}
+
                   <div className="flex items-center justify-between text-sm mt-auto">
                     <div className="flex items-center gap-2">
                       <img
@@ -130,6 +273,7 @@ export default function CourseReviews() {
       <ReviewModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSuccess={refreshReviews}
       />
     </>
   );

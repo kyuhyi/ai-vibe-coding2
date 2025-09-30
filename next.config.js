@@ -14,6 +14,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   // Spline과 iframe 임베드를 위한 설정
@@ -30,8 +42,8 @@ const nextConfig = {
       },
     ]
   },
-  // Spline 라이브러리 최적화
-  webpack: (config, { isServer }) => {
+  // Spline 라이브러리 최적화 및 Windows 파일 시스템 이슈 해결
+  webpack: (config, { isServer, dev }) => {
     // Spline 라이브러리가 클라이언트에서만 로드되도록 설정
     if (!isServer) {
       config.resolve.fallback = {
@@ -42,11 +54,30 @@ const nextConfig = {
       }
     }
 
+    // Windows 개발 환경에서 파일 시스템 워치 최적화
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000, // 1초마다 폴링
+        aggregateTimeout: 300, // 300ms 디바운스
+        ignored: ['**/node_modules', '**/.git', '**/.next'],
+      };
+    }
+
     return config
   },
   // 실험적 기능 활성화
   experimental: {
-    optimizePackageImports: ['@splinetool/react-spline', '@splinetool/runtime']
+    optimizePackageImports: ['@splinetool/react-spline', '@splinetool/runtime'],
+    // Windows에서 빌드 워커 비활성화 (파일 락 이슈 완화)
+    webpackBuildWorker: false,
+  },
+
+  // 개발 모드 최적화
+  onDemandEntries: {
+    // 메모리에 페이지를 유지하는 시간 (ms) - 짧게 설정하여 메모리 사용량 감소
+    maxInactiveAge: 25 * 1000,
+    // 동시에 유지할 페이지 수
+    pagesBufferLength: 2,
   }
 }
 
