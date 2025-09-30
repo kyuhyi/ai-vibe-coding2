@@ -42,6 +42,18 @@ const nextConfig = {
       },
     ]
   },
+  // Spline 라이브러리 최적화
+  webpack: (config, { isServer }) => {
+    // Spline을 클라이언트 사이드에서만 로드
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@splinetool/react-spline': '@splinetool/react-spline',
+      }
+    }
+    return config
+  },
+  transpilePackages: ['@splinetool/react-spline', '@splinetool/runtime'],
 }
 
 module.exports = nextConfig

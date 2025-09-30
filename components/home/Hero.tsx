@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import Button from '@/components/ui/Button';
-import { SpotlightInteractive } from '@/components/ui/spotlight-interactive';
-import { SplineScene } from '@/components/ui/spline';
+import { Spotlight } from '@/components/ui/spotlight';
+import { SplineScene } from '@/components/ui/splite';
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -40,9 +40,9 @@ export default function Hero() {
 
   return (
     <section ref={heroRef} className="w-full min-h-screen relative overflow-hidden bg-black/[0.96]">
-      <SpotlightInteractive
-        className="z-10"
-        size={400}
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20 z-10"
+        fill="white"
       />
 
       <div className="flex h-screen lg:flex-row flex-col">
@@ -125,7 +125,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Spline 섹션 - 모바일에서는 숨김 */}
+        {/* Spline 3D 섹션 - 모바일에서는 숨김 */}
         <div className="hidden lg:flex lg:flex-1 relative">
           <div
             ref={splineRef}
@@ -133,7 +133,7 @@ export default function Hero() {
             style={{ transformStyle: 'preserve-3d' }}
           >
             <SplineScene
-              scene="https://my.spline.design/untitled-1293de50088c5f7d0c8770f9c8ec9682/"
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"
             />
           </div>
