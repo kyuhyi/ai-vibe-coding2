@@ -47,8 +47,24 @@ const nextConfig = {
     esmExternals: 'loose',
   },
   webpack: (config, { isServer }) => {
-    // 클라이언트 사이드에서만 Spline 처리
     if (!isServer) {
+      // Spline 모듈을 완전히 분리된 청크로 처리
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks?.cacheGroups,
+            spline: {
+              test: /[\\/]node_modules[\\/]@splinetool[\\/]/,
+              name: 'spline',
+              chunks: 'all',
+              priority: 10,
+            },
+          },
+        },
+      };
+
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
