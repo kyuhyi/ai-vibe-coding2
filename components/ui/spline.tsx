@@ -1,14 +1,9 @@
 'use client'
 
-import { Suspense, lazy, useEffect, useState } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
-const Spline = lazy(() =>
-  import('@splinetool/react-spline').catch(() => {
-    console.warn('Failed to load Spline component, using fallback')
-    return { default: () => null }
-  })
-)
+const Spline = lazy(() => import('@splinetool/react-spline'))
 
 interface SplineSceneProps {
   scene: string
