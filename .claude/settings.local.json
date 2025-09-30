@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n7차 배포: Spline 3D 로딩 안정성 개선\n\n- Spline 컴포넌트 클라이언트 사이드 렌더링 최적화\n- 로딩 타임아웃 로직 개선 (dev: 15초, prod: 10초)\n- 재시도 로직 개선 및 에러 처리 강화\n- Webpack Spline 모듈 번들링 최적화\n- 개발 환경 파일 시스템 워치 설정 개선\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []

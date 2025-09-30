@@ -42,9 +42,22 @@ const nextConfig = {
       },
     ]
   },
-  // Spline을 완전히 CDN으로만 로드하도록 설정
+  // Spline 최적화 설정
   experimental: {
     esmExternals: 'loose',
+  },
+  webpack: (config, { isServer }) => {
+    // 클라이언트 사이드에서만 Spline 처리
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
+    return config;
   },
 }
 
