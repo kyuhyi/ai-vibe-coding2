@@ -1,6 +1,6 @@
 'use client'
 
-import { SplineScene } from "@/components/ui/splite";
+import { SplineScene } from "@/components/ui/spline";
 import { Card } from "@/components/ui/Card"
 import { SpotlightInteractive } from "@/components/ui/spotlight-interactive"
  
