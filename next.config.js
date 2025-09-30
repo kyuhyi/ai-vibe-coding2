@@ -42,18 +42,10 @@ const nextConfig = {
       },
     ]
   },
-  // Spline 라이브러리 최적화
-  webpack: (config, { isServer }) => {
-    // Spline을 클라이언트 사이드에서만 로드
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@splinetool/react-spline': '@splinetool/react-spline',
-      }
-    }
-    return config
+  // Spline을 완전히 CDN으로만 로드하도록 설정
+  experimental: {
+    esmExternals: 'loose',
   },
-  transpilePackages: ['@splinetool/react-spline', '@splinetool/runtime'],
 }
 
 module.exports = nextConfig
