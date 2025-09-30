@@ -3,7 +3,22 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
-const Spline = lazy(() => import('@splinetool/react-spline'))
+// Fallback component for when Spline fails to load
+const SplineFallback = React.forwardRef<HTMLDivElement>((props, ref) => {
+  useEffect(() => {
+    console.warn('Spline component failed to load, using fallback')
+  }, [])
+  return null
+})
+SplineFallback.displayName = 'SplineFallback'
+
+// Dynamic import with better error handling
+const Spline = lazy(() =>
+  import('@splinetool/react-spline').catch((error) => {
+    console.error('Failed to load Spline:', error)
+    return { default: SplineFallback }
+  })
+)
 
 interface SplineSceneProps {
   scene: string

@@ -42,7 +42,7 @@ const nextConfig = {
       },
     ]
   },
-  // Spline 라이브러리 최적화 및 Windows 파일 시스템 이슈 해결
+  // Spline 라이브러리 최적화
   webpack: (config, { isServer, dev }) => {
     // Spline 라이브러리가 클라이언트에서만 로드되도록 설정
     if (!isServer) {
@@ -56,42 +56,29 @@ const nextConfig = {
         path: false,
         os: false,
       }
-
-      // Spline 관련 모듈 외부화 방지
-      config.externals = config.externals || []
-      config.externals.push(function (context, request, callback) {
-        if (request.includes('@splinetool')) {
-          return callback()
-        }
-        return callback()
-      })
     }
 
-    // 개발 환경에서 더 관대한 설정
+    // Spline 모듈 번들링 최적화 (개발/프로덕션 공통)
+    config.optimization = config.optimization || {}
+    config.optimization.splitChunks = config.optimization.splitChunks || {}
+    config.optimization.splitChunks.cacheGroups = {
+      ...config.optimization.splitChunks.cacheGroups,
+      spline: {
+        name: 'spline',
+        test: /[\\/]node_modules[\\/]@splinetool[\\/]/,
+        chunks: 'all',
+        priority: 20,
+        enforce: true,
+      }
+    }
+
+    // 개발 환경 전용 설정
     if (dev) {
       // Windows 개발 환경에서 파일 시스템 워치 최적화
       config.watchOptions = {
-        poll: 1000, // 1초마다 폴링
-        aggregateTimeout: 300, // 300ms 디바운스
+        poll: 1000,
+        aggregateTimeout: 300,
         ignored: ['**/node_modules', '**/.git', '**/.next'],
-      }
-
-      // 개발 환경에서 Spline 모듈 최적화
-      config.optimization = {
-        ...config.optimization,
-        moduleIds: 'named',
-        splitChunks: {
-          ...config.optimization.splitChunks,
-          cacheGroups: {
-            ...config.optimization.splitChunks?.cacheGroups,
-            spline: {
-              name: 'spline',
-              test: /[\\/]node_modules[\\/]@splinetool[\\/]/,
-              chunks: 'all',
-              priority: 20,
-            }
-          }
-        }
       }
     }
 
@@ -99,7 +86,7 @@ const nextConfig = {
   },
   // 실험적 기능 활성화
   experimental: {
-    optimizePackageImports: ['@splinetool/react-spline', '@splinetool/runtime'],
+    // Spline과의 충돌 방지를 위해 optimizePackageImports 비활성화
     // Windows에서 빌드 워커 비활성화 (파일 락 이슈 완화)
     webpackBuildWorker: false,
   },
