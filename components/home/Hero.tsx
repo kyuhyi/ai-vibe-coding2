@@ -2,15 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
 import Button from '@/components/ui/Button';
 import { SpotlightInteractive } from '@/components/ui/spotlight-interactive';
-
-// Spline 컴포넌트를 클라이언트 사이드에서만 로드 (Hydration 안정성 개선)
-const SplineScene = dynamic(() => import('@/components/ui/spline').then(mod => ({ default: mod.SplineScene })), {
-  ssr: false,
-  loading: () => null
-});
+import { SplineScene } from '@/components/ui/spline';
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
