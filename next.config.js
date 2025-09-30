@@ -42,39 +42,6 @@ const nextConfig = {
       },
     ]
   },
-  // Spline 최적화 설정
-  experimental: {
-    esmExternals: 'loose',
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Spline 모듈을 완전히 분리된 청크로 처리
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          ...config.optimization.splitChunks,
-          cacheGroups: {
-            ...config.optimization.splitChunks?.cacheGroups,
-            spline: {
-              test: /[\\/]node_modules[\\/]@splinetool[\\/]/,
-              name: 'spline',
-              chunks: 'all',
-              priority: 10,
-            },
-          },
-        },
-      };
-
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-
-    return config;
-  },
 }
 
 module.exports = nextConfig

@@ -1,52 +1,67 @@
 'use client'
 
-import { Suspense, lazy, useState, useEffect } from 'react'
-const Spline = lazy(() => import('@splinetool/react-spline'))
+import { useEffect, useRef, useState } from 'react'
 
 interface SplineSceneProps {
   scene: string
   className?: string
 }
 
+declare global {
+  interface Window {
+    SplineRuntime: any
+  }
+}
+
 export function SplineScene({ scene, className }: SplineSceneProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [retryCount, setRetryCount] = useState(0)
-  const maxRetries = 3
 
   useEffect(() => {
-    // 로딩 타임아웃 설정 (개발: 15초, 프로덕션: 10초)
-    const timeout = setTimeout(() => {
-      if (isLoading) {
-        console.warn('Spline loading timeout, attempting retry...')
-        if (retryCount < maxRetries) {
-          setRetryCount(prev => prev + 1)
-          setIsLoading(true)
-        } else {
-          setError(true)
+    let app: any = null
+
+    const loadSpline = async () => {
+      try {
+        // CDN에서 Spline Runtime 로드
+        if (!window.SplineRuntime) {
+          const script = document.createElement('script')
+          script.type = 'module'
+          script.src = 'https://unpkg.com/@splinetool/runtime@1.10.71/build/runtime.js'
+
+          await new Promise((resolve, reject) => {
+            script.onload = resolve
+            script.onerror = reject
+            document.head.appendChild(script)
+          })
+        }
+
+        // Spline 앱 초기화
+        if (canvasRef.current && window.SplineRuntime) {
+          const { Application } = window.SplineRuntime
+          app = new Application(canvasRef.current)
+          await app.load(scene)
           setIsLoading(false)
         }
+      } catch (err) {
+        console.error('Spline load error:', err)
+        setError(true)
+        setIsLoading(false)
       }
-    }, process.env.NODE_ENV === 'development' ? 15000 : 10000)
-
-    return () => clearTimeout(timeout)
-  }, [isLoading, retryCount])
-
-  const handleLoad = () => {
-    setIsLoading(false)
-    setError(false)
-  }
-
-  const handleError = () => {
-    console.error('Spline failed to load')
-    if (retryCount < maxRetries) {
-      console.log(`Retrying... (${retryCount + 1}/${maxRetries})`)
-      setRetryCount(prev => prev + 1)
-    } else {
-      setError(true)
-      setIsLoading(false)
     }
-  }
+
+    loadSpline()
+
+    return () => {
+      if (app) {
+        try {
+          app.dispose()
+        } catch (e) {
+          console.warn('Spline disposal error:', e)
+        }
+      }
+    }
+  }, [scene])
 
   if (error) {
     return (
@@ -60,19 +75,17 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="w-full h-full flex items-center justify-center">
+    <div className={`relative w-full h-full ${className || ''}`}>
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-50 animate-pulse"></div>
         </div>
-      }
-    >
-      <Spline
-        scene={scene}
-        className={className}
-        onLoad={handleLoad}
-        onError={handleError}
+      )}
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full"
+        style={{ display: 'block' }}
       />
-    </Suspense>
+    </div>
   )
 }
