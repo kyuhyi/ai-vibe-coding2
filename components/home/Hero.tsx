@@ -133,7 +133,7 @@ export default function Hero() {
             style={{ transformStyle: 'preserve-3d' }}
           >
             <SplineScene
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              scene="https://my.spline.design/untitled-1293de50088c5f7d0c8770f9c8ec9682/"
               className="w-full h-full"
             />
           </div>

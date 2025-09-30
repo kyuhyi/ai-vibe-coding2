@@ -48,7 +48,7 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
   }
 
   return (
-    <div className={`relative w-full h-full ${className || ''}`}>
+    <div className={`relative w-full h-full ${className || ''}`} style={{ minHeight: '100%' }}>
       {isLoading && (
         <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm z-10">
           <div className="text-center">
@@ -60,10 +60,7 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
       <iframe
         src={scene}
         frameBorder="0"
-        width="100%"
-        height="100%"
-        className="w-full h-full"
-        style={{ minHeight: '600px' }}
+        className="w-full h-full absolute inset-0"
         onLoad={handleIframeLoad}
         onError={handleIframeError}
         title="3D Spline Scene"

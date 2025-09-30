@@ -24,8 +24,8 @@ export function SplineSceneBasic() {
         </div>
 
         <div className="flex-1 relative">
-          <SplineScene 
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+          <SplineScene
+            scene="https://my.spline.design/untitled-1293de50088c5f7d0c8770f9c8ec9682/"
             className="w-full h-full"
           />
         </div>
