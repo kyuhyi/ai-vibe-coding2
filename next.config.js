@@ -51,16 +51,48 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+        crypto: false,
+        stream: false,
+        path: false,
+        os: false,
       }
+
+      // Spline 관련 모듈 외부화 방지
+      config.externals = config.externals || []
+      config.externals.push(function (context, request, callback) {
+        if (request.includes('@splinetool')) {
+          return callback()
+        }
+        return callback()
+      })
     }
 
-    // Windows 개발 환경에서 파일 시스템 워치 최적화
+    // 개발 환경에서 더 관대한 설정
     if (dev) {
+      // Windows 개발 환경에서 파일 시스템 워치 최적화
       config.watchOptions = {
         poll: 1000, // 1초마다 폴링
         aggregateTimeout: 300, // 300ms 디바운스
         ignored: ['**/node_modules', '**/.git', '**/.next'],
-      };
+      }
+
+      // 개발 환경에서 Spline 모듈 최적화
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: 'named',
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks?.cacheGroups,
+            spline: {
+              name: 'spline',
+              test: /[\\/]node_modules[\\/]@splinetool[\\/]/,
+              chunks: 'all',
+              priority: 20,
+            }
+          }
+        }
+      }
     }
 
     return config

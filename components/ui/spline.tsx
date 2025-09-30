@@ -3,7 +3,12 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
-const Spline = lazy(() => import('@splinetool/react-spline'))
+const Spline = lazy(() =>
+  import('@splinetool/react-spline').catch(() => {
+    console.warn('Failed to load Spline component, using fallback')
+    return { default: () => null }
+  })
+)
 
 interface SplineSceneProps {
   scene: string
@@ -31,45 +36,66 @@ function SplineWrapper({ scene, className }: SplineSceneProps) {
   const [hasError, setHasError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [retryCount, setRetryCount] = useState(0)
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    // 로딩 타임아웃 설정 (15초로 조정, 더 빠른 대응)
-    const loadingTimeout = setTimeout(() => {
-      if (isLoading && retryCount < 3) {
-        console.log(`Spline loading timeout, retrying... (attempt ${retryCount + 1})`)
-        setRetryCount(prev => prev + 1)
-        setIsLoading(true)
-        setHasError(false)
-      } else {
-        console.log('Spline loading failed after retries, keeping last successful state')
-        setIsLoading(false)
-        // 에러 상태로 가지 않고 로딩만 중단
-      }
-    }, 15000)
+    // 클라이언트 사이드에서만 실행되도록 보장
+    setIsClient(true)
 
-    return () => clearTimeout(loadingTimeout)
-  }, [isLoading, retryCount])
+    // 개발 환경에서 더 긴 타임아웃 설정
+    const isDev = process.env.NODE_ENV === 'development'
+    const timeout = isDev ? 15000 : 10000
+
+    let timeoutId: NodeJS.Timeout | null = null
+
+    if (isLoading && isClient) {
+      timeoutId = setTimeout(() => {
+        console.log(`Spline loading timeout after ${timeout/1000} seconds (${isDev ? 'dev' : 'prod'} mode)`)
+        setIsLoading(false)
+      }, timeout)
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [isLoading, isClient])
 
   const handleLoad = () => {
     console.log('Spline scene loaded successfully')
     setIsLoading(false)
     setHasError(false)
+    setRetryCount(0)
   }
 
   const handleError = (error?: any) => {
     console.log('Spline loading error:', error)
     setIsLoading(false)
-    if (retryCount < 2) {
+
+    if (retryCount < 1) { // 재시도 횟수를 1회로 줄임
       console.log(`Retrying Spline load... (attempt ${retryCount + 1})`)
       setTimeout(() => {
         setRetryCount(prev => prev + 1)
         setIsLoading(true)
         setHasError(false)
-      }, 2000)
+      }, 3000) // 재시도 딜레이를 3초로 증가
     } else {
       console.log('Spline loading failed permanently after retries, showing fallback')
       setHasError(true)
     }
+  }
+
+  // 클라이언트 사이드에서만 렌더링
+  if (!isClient) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-sm">
+        <div className="text-center">
+          <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-50 animate-pulse"></div>
+          <p className="text-white/60">3D Scene Initializing...</p>
+        </div>
+      </div>
+    )
   }
 
   if (hasError) {
@@ -97,12 +123,14 @@ function SplineWrapper({ scene, className }: SplineSceneProps) {
           </div>
         </div>
       )}
-      <Spline
-        scene={scene}
-        className={className}
-        onLoad={handleLoad}
-        onError={handleError}
-      />
+      <div className="w-full h-full" style={{ minHeight: '400px' }}>
+        <Spline
+          scene={scene}
+          className={`${className} w-full h-full`}
+          onLoad={handleLoad}
+          onError={handleError}
+        />
+      </div>
     </>
   )
 }
