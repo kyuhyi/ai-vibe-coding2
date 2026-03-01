@@ -1,4 +1,3 @@
-import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import Header from '@/components/layout/Header';
@@ -6,8 +5,6 @@ import Footer from '@/components/layout/Footer';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ErrorSuppressionProvider from '@/components/providers/ErrorSuppressionProvider';
 import './globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://aivibe.dev'),
@@ -51,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className={inter.className}>
+    <html lang="ko">
       <body className="min-h-screen bg-gray-50">
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
